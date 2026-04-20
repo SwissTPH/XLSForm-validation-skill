@@ -68,15 +68,6 @@ Drop this skill folder into your Claude Code skills directory, then ask Claude s
 
 Claude will run the validation pipeline and return a report you can act on directly.
 
-## Example
-
-Sample files for trying the skill:
-
-- `malaria_survey_WITH_ERRORS.xlsx` — contains a mix of common XLSForm mistakes
-- `malaria_survey_CLEAN.xlsx` — the fixed version
-
-Both live in `skills_docs/` in this repository.
-
 ## License
 
 CC0 1.0 Universal license
