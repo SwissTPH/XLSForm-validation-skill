@@ -1,4 +1,4 @@
-# XLSForm Checker
+# XLSForm Validation
 
 A Claude Code skill that validates ODK XLSForms and returns plain-English feedback for non-technical health researchers.
 
