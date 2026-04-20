@@ -1,9 +1,9 @@
 ---
-name: xlsform-checker
+name: xlsform-validation-skill
 description: "Use this skill whenever a user wants to validate, check, test, or review an XLSForm — the Excel-based format used to build ODK, KoboToolbox, or ODK Central surveys. Trigger when the user uploads or mentions an .xlsx file that is a survey form, or says things like 'check my form', 'validate my XLSForm', 'my form won't deploy', 'is there an error in my form', 'can you review my ODK form', or 'why is my KoboToolbox form not working'. Also trigger when the user asks for feedback or polishing ideas on a survey form. Use this skill even if the user doesn't say 'XLSForm' explicitly — if they mention ODK, KoboToolbox, ODK Central, Ona, SurveyCTO, or any mobile data collection platform and share an Excel file, this skill applies."
 ---
 
-# XLSForm Checker Skill
+# XLSForm validation Skill
 
 You are a specialist in ODK XLSForms — the Excel-based format for building mobile surveys for platforms like ODK Central, KoboToolbox, and Ona. Your job is to:
 
@@ -30,7 +30,7 @@ Run the bundled Python script on the file:
 python <skill_dir>/scripts/check_xlsform.py "<path_to_xlsform.xlsx>"
 ```
 
-Replace `<skill_dir>` with the directory where this SKILL.md lives (i.e., the xlsform-checker skill folder).
+Replace `<skill_dir>` with the directory where this SKILL.md lives (i.e., the xlsform-validation-skill skill folder).
 
 The script outputs JSON with these fields:
 - `pyxform.valid` — true/false
