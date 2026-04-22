@@ -396,6 +396,70 @@ def extra_checks(sheets: dict):
                         )
                     })
 
+        # --- Check 6c: ${field} inside HTML tags in labels / hints ---
+        # XLSForm labels and hints support some HTML styling (e.g. <span>, <b>, <font>).
+        # But when ${field_name} appears inside an HTML tag — either inside a tag's
+        # attribute area (<span style="...${x}...">) or between an opening and closing
+        # tag (<span>${x}</span>) — ODK does NOT perform variable substitution. The
+        # respondent sees the literal text "${field_name}". pyxform silently accepts
+        # this and reports no warning, so this check catches it explicitly.
+        for col_name in label_hint_cols:
+            cell_val = str(row.get(col_name, "")).strip()
+            if not cell_val or '${' not in cell_val or '<' not in cell_val:
+                continue
+            flagged_refs_in_cell = set()
+            for ref_match in re.finditer(r'\$\{([^}]+)\}', cell_val):
+                ref_name = ref_match.group(1)
+                if ref_name in flagged_refs_in_cell:
+                    continue
+                text_before = cell_val[:ref_match.start()]
+                text_after = cell_val[ref_match.end():]
+
+                # Case A: inside an HTML tag's attribute area
+                # (unclosed '<' before the reference with no intervening '>')
+                last_lt = text_before.rfind('<')
+                last_gt = text_before.rfind('>')
+                inside_attr = last_lt >= 0 and last_lt > last_gt
+
+                # Case B: wrapped between an opening tag and a closing tag
+                wrapped_tag = None
+                if not inside_attr:
+                    open_match = re.search(
+                        r'<([a-zA-Z][a-zA-Z0-9]*)(?:\s[^>]*)?>[^<]*$', text_before
+                    )
+                    close_match = re.search(
+                        r'^[^<]*</([a-zA-Z][a-zA-Z0-9]*)\s*>', text_after
+                    )
+                    if open_match and close_match:
+                        wrapped_tag = open_match.group(1)
+
+                if inside_attr or wrapped_tag:
+                    flagged_refs_in_cell.add(ref_name)
+                    if wrapped_tag:
+                        where = f"inside an HTML <{wrapped_tag}> tag"
+                    else:
+                        where = "inside an HTML tag's attribute"
+                    issues.append({
+                        "severity": "High",
+                        "sheet": "survey",
+                        "row": row_num,
+                        "column": col_name,
+                        "message": (
+                            f"The {col_name} column contains ${{{ref_name}}} {where}. "
+                            f"ODK does not substitute ${{...}} references that are wrapped "
+                            f"in HTML — the app will show the literal text '${{{ref_name}}}' "
+                            f"instead of the actual value of '{ref_name}'. "
+                            f"pyxform does NOT warn about this."
+                        ),
+                        "suggestion": (
+                            f"Move ${{{ref_name}}} outside of the HTML tag. For example, "
+                            f"replace '<span style=\"...\">${{{ref_name}}}</span>' with "
+                            f"'${{{ref_name}}}' on its own, or use ODK's supported markdown "
+                            f"syntax for styling (e.g. **bold**, _italic_, # heading) which "
+                            f"does not interfere with variable substitution."
+                        )
+                    })
+
         # --- Check 7: Common XPath mistakes ---
         for expr_col_name, expr_val in [("relevant", q_relevant), ("constraint", q_constraint), ("calculation", q_calculation)]:
             if expr_val:
