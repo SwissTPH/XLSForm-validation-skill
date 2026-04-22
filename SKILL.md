@@ -146,6 +146,7 @@ The script checks for these common issues that slip through pyxform:
 8. Required questions that have a constraint but no constraint_message
 9. Unclosed begin_group / begin_repeat pairs
 10. String concatenation using `+` instead of `concat()`
+11. `${field}` references inside HTML tags in labels/hints — ODK won't substitute the variable, the app shows the literal text `${field}`, and pyxform raises no warning
 
 ---
 
